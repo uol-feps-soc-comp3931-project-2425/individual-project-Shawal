@@ -29,14 +29,13 @@ g = sns.relplot(
 #set axis labels for each facet
 g.set_axis_labels("Date (YYYY-MM-DD)", "Average CSAT Score")
 
+g.set_titles("Category = {col_name}", fontweight='bold')
+
 g.fig.suptitle("Average CSAT Score by Category Over Time", y=1.02, fontweight='bold')
 
 #rotate x-axis labels for each subplot
 for ax in g.axes.flatten():
     ax.tick_params(axis='x', rotation=45)
 
-g.set_titles("Category = {col_name}")
-
-#adjust layout so the suptitle isn't cut off
 plt.tight_layout()
 plt.show()
