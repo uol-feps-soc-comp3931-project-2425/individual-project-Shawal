@@ -47,5 +47,7 @@ plt.ylabel('CSAT Score', fontstyle='italic')
 #rotate x-axis labels for better visibility
 plt.xticks(rotation=45, ha='right')
 
+#adjust layout to prevent overlapping elements
+plt.tight_layout()
 plt.show()
 
