@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 #CATEGORY
 
 #load the dataset
-df = pd.read_csv('eCommerce.csv')
+df = pd.read_csv('../eCommerce.csv')
 
 #group the data by 'category' and calculate the average CSAT score
 avg_csat = df.groupby('category')['CSAT Score'].mean()

@@ -2,8 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-#load your dataset
-df = pd.read_csv('eCommerce.csv')
+#load the dataset
+df = pd.read_csv('../eCommerce.csv')
 
 #convert 'Issue_reported at' to datetime
 df['Issue_reported at'] = pd.to_datetime(df['Issue_reported at'], errors='coerce')
