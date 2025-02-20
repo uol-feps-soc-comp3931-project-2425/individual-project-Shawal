@@ -2,7 +2,7 @@ import pandas as pd
 from langcodes import Language
 
 #load the dataset
-df = pd.read_csv('Language_Labels.csv')
+df = pd.read_csv('datasets/Language_Labels.csv')
 
 #ensure "N/A" values are counted 
 df['Language'] = df['Language'].fillna("N/A")

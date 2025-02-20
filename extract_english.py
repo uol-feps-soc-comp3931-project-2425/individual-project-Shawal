@@ -4,7 +4,7 @@ import swifter
 from tqdm import tqdm
 
 #load the dataset
-df = pd.read_csv('eCommerce.csv')
+df = pd.read_csv('datsets/eCommerce.csv')
 
 #define the language detection function
 def detect_language(text):

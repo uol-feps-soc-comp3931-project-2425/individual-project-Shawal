@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 #load the dataset
-df = pd.read_csv('../eCommerce.csv')
+df = pd.read_csv('../datasets/eCommerce.csv')
 
 # #DEBUGGING
 # print(df.groupby('category')['CSAT Score'].describe())
