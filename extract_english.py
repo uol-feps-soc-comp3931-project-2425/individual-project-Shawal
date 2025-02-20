@@ -9,12 +9,18 @@ df = pd.read_csv('eCommerce.csv')
 #define the language detection function
 def detect_language(text):
     try:
+        #Check for empty or NaN values
+        if pd.isna(text) or text.strip() == "":  
+            return "N/A"
         return detect(text)
     except:
-        return 'unknown'
+        return "unknown"
 
 #apply the language detection
 df['Language'] = df['Customer Remarks'].swifter.apply(detect_language)
+
+#Save the updated dataset with the new 'Language' column
+df.to_csv('Language_Labels.csv', index=False)
 
 #filter only English reviews
 df_english = df[df['Language'] == 'en']
