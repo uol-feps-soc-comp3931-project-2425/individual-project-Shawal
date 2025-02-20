@@ -4,7 +4,7 @@ import pandas as pd
 from langcodes import Language
 
 #load the dataset
-df = pd.read_csv('../datasets/Language_Labels.csv')  # Ensure correct path
+df = pd.read_csv('datasets/Language_Labels.csv')  # Ensure correct path
 
 #function to convert language codes to full names
 def get_full_language_name(lang_code):
