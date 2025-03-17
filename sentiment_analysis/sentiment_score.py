@@ -1,12 +1,14 @@
 import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+ #import tqdm for progress bar
+from tqdm import tqdm 
 
 #load the dataset
 df = pd.read_csv('../datasets/tokenized_eCommerce.csv')
 
 #load sentiment model & tokenizer 
-model_name = "cardiffnlp/twitter-roberta-base-sentiment"
+model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
@@ -36,11 +38,20 @@ def get_sentiment(text):
     #confidence score
     confidence = torch.softmax(logits, dim=1).max().item()  
     
-    #3-class sentiment mapping
-    sentiment_mapping = {0: "Negative", 1: "Neutral", 2: "Positive"}
+    #5-class sentiment mapping
+    sentiment_mapping = {
+        0: "Very Negative",
+        1: "Negative",
+        2: "Neutral",
+        3: "Positive",
+        4: "Very Positive"
+    }
     sentiment_label = sentiment_mapping[predicted_class]
     
     return sentiment_label, confidence
 
+tqdm.pandas(desc="Processing Sentiment Analysis")
+df[['Sentiment', 'Confidence']] = df['Customer Remarks'].progress_apply(lambda x: pd.Series(get_sentiment(x)))
+
 #save the results
-df.to_csv('../datasets/sentiment_analysis_results_3class.csv', index=False)
+df.to_csv('../datasets/Sentiment_Analysis_Results.csv', index=False)
