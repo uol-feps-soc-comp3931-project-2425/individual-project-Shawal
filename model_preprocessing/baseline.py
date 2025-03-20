@@ -1,69 +1,55 @@
-#Use XGBoost Regressor 
-
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 #load the dataset
-dataset = pd.read_csv('../datasets/Final.csv')
+df = pd.read_csv("../datasets/Final.csv")  
 
-#identify categorical columns
-cat_cols = ['channel_name', 'category', 'Sub-category', 'Customer_City', 'Product_category',
-            'Agent_name', 'Supervisor', 'Manager', 'Tenure Bucket', 'Agent Shift']
+#Create a copy for the Baseline Model
+df_baseline = df.copy()
 
-#lill missing categorical values before encoding
-dataset[cat_cols] = dataset[cat_cols].fillna("Unknown")
+#drop segmentation-related features
+segmentation_features = ["category", "Sub-category"]
+df_baseline.drop(columns=segmentation_features, inplace=True, errors="ignore")
 
-#apply label encoding
-label_encoders = {}
-for col in cat_cols:
-    le = LabelEncoder()
-    dataset[col] = le.fit_transform(dataset[col].astype(str))  
-    label_encoders[col] = le  
+datetime_cols = ["order_date_time", "Issue_reported at", "issue_responded", "Survey_response_Date"]
 
-#keep missing numerical values as NaN
-num_cols = ['Item_price', 'response_time', 'connected_handling_time']
-dataset[num_cols] = dataset[num_cols].replace("Unknown", pd.NA)
+for dtcol in datetime_cols:
+    if dtcol in df_baseline.columns:
+        #convert to datetime, coerce errors to NaT (Not a Time)
+        df_baseline[dtcol] = pd.to_datetime(df_baseline[dtcol], errors="coerce")
+        
+        #create new columns for hour & day of week
+        df_baseline[f"{dtcol}_hour"] = df_baseline[dtcol].dt.hour
+        df_baseline[f"{dtcol}_dayofweek"] = df_baseline[dtcol].dt.dayofweek
+        
+        #optionally drop the original datetime column if not needed
+        df_baseline.drop(columns=[dtcol], inplace=True)
 
-dataset["CSAT Score"] = pd.to_numeric(dataset["CSAT Score"], errors='coerce')
+#remove sentiment-related features
+sentiment_features = ["Sentiment", "Confidence", "tokens", "word_count", "Customer Remarks"]
+df_baseline.drop(columns=[col for col in sentiment_features if col in df_baseline.columns],
+                 inplace=True, errors="ignore")
 
-#convert date columns
-date_cols = ['order_date_time', 'Issue_reported at', 'issue_responded', 'Survey_response_Date']
-for col in date_cols:
-    dataset[col] = pd.to_datetime(dataset[col], errors='coerce')
+#convert categorical variables into numerical values
+#identify columns that are 'object' or 'category' type and encode them
+categorical_cols = df_baseline.select_dtypes(include=["object", "category"]).columns.tolist()
 
-#extract features
-for col in date_cols:
-    dataset[col + '_year'] = dataset[col].dt.year
-    dataset[col + '_month'] = dataset[col].dt.month
-    dataset[col + '_day'] = dataset[col].dt.day
-    dataset[col + '_hour'] = dataset[col].dt.hour
+#drop any ID columns you don't want to encode if needed
+id_like_cols = ["Unique id", "Order_id", "Agent_name", "Supervisor", "Manager"]
+categorical_cols = [col for col in categorical_cols if col not in id_like_cols]
+#drop ID-like columns from final dataset
+df_baseline.drop(columns=id_like_cols, inplace=True, errors="ignore")
 
-#drop original datetime columns
-dataset.drop(columns=date_cols, inplace=True)
+#one-hot encode the remaining categorical columns
+df_baseline = pd.get_dummies(df_baseline, columns=categorical_cols, drop_first=True)
 
-# Define features manually
-selected_features = [
-    'channel_name', 'Customer_City', 'Product_category',
-    'Agent_name', 'Supervisor', 'Manager', 'Tenure Bucket', 'Agent Shift',
-    'Item_price', 'response_time', 'connected_handling_time',
-    'order_date_time_year', 'order_date_time_month', 'order_date_time_day', 'order_date_time_hour',
-    'Issue_reported at_year', 'Issue_reported at_month', 'Issue_reported at_day', 'Issue_reported at_hour',
-    'issue_responded_year', 'issue_responded_month', 'issue_responded_day', 'issue_responded_hour',
-    'Survey_response_Date_year', 'Survey_response_Date_month', 'Survey_response_Date_day', 'Survey_response_Date_hour'
-]
+#for each numeric column, create an indicator and fill missing with 0
+numeric_cols = df_baseline.select_dtypes(include=["int64", "float64"]).columns
 
-#define features (X) and target variable (y)
-X = dataset[selected_features]
-y = dataset["CSAT Score"]
+for col in numeric_cols:
+    #create a new column marking whether the original value was missing
+    df_baseline[f"{col}_missing"] = df_baseline[col].isna().astype(int)
+    #fill the missing values with 0
+    df_baseline[col].fillna(0, inplace=True)
 
-#split into train (80%) and test (20%)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Save the processed dataset to a CSV file
-output_file_path = "Processed_Baseline.csv"
-dataset.to_csv(output_file_path, index=False)
-
-
-
-
+df_baseline.to_csv("Baseline_Model_Dataset.csv", index=False)
