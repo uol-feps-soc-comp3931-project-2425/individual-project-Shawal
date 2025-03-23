@@ -4,7 +4,7 @@ from sklearn.preprocessing import LabelEncoder
 #load the dataset
 df = pd.read_csv("../datasets/Final.csv")  
 
-#Create a copy for the Baseline Model
+#create a copy for the Baseline Model
 df_baseline = df.copy()
 
 #drop segmentation-related features
@@ -22,7 +22,7 @@ for dtcol in datetime_cols:
         df_baseline[f"{dtcol}_hour"] = df_baseline[dtcol].dt.hour
         df_baseline[f"{dtcol}_dayofweek"] = df_baseline[dtcol].dt.dayofweek
         
-        #optionally drop the original datetime column if not needed
+        #drop the original datetime column
         df_baseline.drop(columns=[dtcol], inplace=True)
 
 #remove sentiment-related features
@@ -31,10 +31,9 @@ df_baseline.drop(columns=[col for col in sentiment_features if col in df_baselin
                  inplace=True, errors="ignore")
 
 #convert categorical variables into numerical values
-#identify columns that are 'object' or 'category' type and encode them
 categorical_cols = df_baseline.select_dtypes(include=["object", "category"]).columns.tolist()
 
-#drop any ID columns you don't want to encode if needed
+#drop unecessary ID columns 
 id_like_cols = ["Unique id", "Order_id", "Agent_name", "Supervisor", "Manager"]
 categorical_cols = [col for col in categorical_cols if col not in id_like_cols]
 #drop ID-like columns from final dataset
@@ -51,5 +50,11 @@ for col in numeric_cols:
     df_baseline[f"{col}_missing"] = df_baseline[col].isna().astype(int)
     #fill the missing values with 0
     df_baseline[col].fillna(0, inplace=True)
+
+#convert boolean columns (True/False) to integers (1/0)
+df_baseline = df_baseline.astype({col: int for col in df_baseline.select_dtypes(bool).columns})
+
+#clean column names: remove spaces and replace with underscores
+df_baseline.columns = df_baseline.columns.str.replace(" ", "_")
 
 df_baseline.to_csv("Baseline_Model_Dataset.csv", index=False)
