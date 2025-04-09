@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import optuna
+import joblib
 from sklearn.model_selection import KFold, cross_val_score
 from sklearn.metrics import mean_squared_error, r2_score
 from xgboost import XGBRegressor
@@ -76,3 +77,6 @@ print("Average RMSE:", round(np.mean(rmse_list), 4))
 
 print("R² per fold:", np.round(r2_list, 4))
 print("Average R²:", round(np.mean(r2_list), 4))
+
+#save model and results
+joblib.dump(best_model, "Baseline_XGBoost_Model.pkl")

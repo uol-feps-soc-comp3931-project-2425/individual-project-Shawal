@@ -39,9 +39,6 @@ print(f"\nTrain/Test Split Results:")
 print(f"RMSE: {rmse_split:.4f}")
 print(f"R² Score: {r2_split:.4f}")
 
-#save model and results
-joblib.dump(xgb_model_split, "Baseline_XGBoost_Model_TrainTest.pkl")
-
 #5-fold cross-validation method
 
 kfold = KFold(n_splits=5, shuffle=True, random_state=42)
