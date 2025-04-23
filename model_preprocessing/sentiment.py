@@ -30,5 +30,8 @@ merged_df["Sentiment_Score"] = merged_df["Sentiment"].map(sentiment_map)
 #remove raw text columns
 merged_df = merged_df.drop(columns=["Customer Remarks", "word_count", "tokens"], errors="ignore")
 
+#then drop the original text column
+df = merged_df.drop(columns=["Sentiment"], errors="ignore")
+
 #save your sentiment-enhanced dataset
-merged_df.to_csv("../model_datasets/Sentiment_Model_Dataset.csv", index=False)
+df.to_csv("../model_datasets/Sentiment_Model_Dataset.csv", index=False)
