@@ -82,12 +82,17 @@ def train_model(dataset_path, model_name):
 
     #retrain with best params and save
     best_model = XGBRegressor(**study.best_params)
-    best_model.fit(X, y)
+    best_model.fit(X_train, y_train)
+
+    y_pred_best = best_model.predict(X_test)
+    r2_best = r2_score(y_test, y_pred_best)
+    print("Best Tuned R²:", round(r2_best, 4))
+
     joblib.dump(best_model, f"{model_name}_XGBoost_Model.pkl")
     print(f"\nSaved model to: {model_name}_XGBoost_Model.pkl")
 
 #run for all four models
-#train_model("../model_datasets/Baseline_Model_Dataset.csv", "Baseline")
+train_model("../model_datasets/Baseline_Model_Dataset.csv", "Baseline")
 train_model("../model_datasets/Sentiment_Model_Dataset.csv", "Sentiment")
 train_model("../model_datasets/Clustering_Model_Dataset.csv", "Clustering")
 train_model("../model_datasets/Combined_Model_Dataset.csv", "Combined")
