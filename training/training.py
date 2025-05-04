@@ -75,7 +75,6 @@ def train_model(dataset_path, model_name):
     study.optimize(objective, n_trials=30, show_progress_bar=True)
 
     print("\nBest Trial:")
-    print("Best RMSE:", round(study.best_value, 4))
     print("Best Params:")
     for k, v in study.best_params.items():
         print(f"  - {k}: {v}")
@@ -87,6 +86,9 @@ def train_model(dataset_path, model_name):
     y_pred_best = best_model.predict(X_test)
     r2_best = r2_score(y_test, y_pred_best)
     print("Best Tuned R²:", round(r2_best, 4))
+
+    rmse_best = mean_squared_error(y_test, y_pred_best, squared=False)
+    print("Best Tuned RMSE:", round(rmse_best, 4))
 
     joblib.dump(best_model, f"{model_name}_XGBoost_Model.pkl")
     print(f"\nSaved model to: {model_name}_XGBoost_Model.pkl")
