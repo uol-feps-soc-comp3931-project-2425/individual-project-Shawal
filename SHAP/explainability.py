@@ -99,7 +99,7 @@ def explain_model(model_name):
     X = df.drop(columns=["CSAT_Score"])
     model = joblib.load(model_path)
 
-    #SHAP explainability
+    #SHAP tree explainer 
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X)
 
